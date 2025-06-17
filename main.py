@@ -1,7 +1,7 @@
 from modules.xyz_reader import *
 from modules.bond_distances import *
 
-file = 'tests/methane_dimer.xyz'
+file = 'tests/complicated_molecule.xyz'
 
 benzene = XYZ(file)
 benzene.reader()

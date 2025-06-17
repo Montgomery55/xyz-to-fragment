@@ -2,8 +2,8 @@ import numpy as np
 
 covalent_radii_pm = {
     "H": 37,  "He": 28, #hydrogen gets a little fudge factor here, should be 31 but that seems too small
-    "Li": 128, "Be": 96,  "B": 84,   "C": 76,   "N": 71,   "O": 66,   "F": 57,   "Ne": 58,
-    "Na": 166, "Mg": 141, "Al": 121, "Si": 111, "P": 107,  "S": 105,  "Cl": 102, "Ar": 106,
+    "Li": 128, "Be": 96,  "B": 84,   "C": 77,   "N": 75,   "O": 66,   "F": 64,   "Ne": 58,
+    "Na": 166, "Mg": 141, "Al": 121, "Si": 111, "P": 115,  "S": 105,  "Cl": 102, "Ar": 106,
     "K": 203,  "Ca": 176, "Sc": 170, "Ti": 160, "V": 153,  "Cr": 139, "Mn": 139, "Fe": 132,
     "Co": 126, "Ni": 124, "Cu": 132, "Zn": 122, "Ga": 122, "Ge": 120, "As": 119, "Se": 120,
     "Br": 120, "Kr": 116,
