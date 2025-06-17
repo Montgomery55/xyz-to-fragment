@@ -1,4 +1,8 @@
 import numpy as np
+from scipy.spatial import distance_matrix
+import networkx as nx
+from itertools import permutations
+from modules.bond_distances import *
 
 class XYZ():
     def __init__(self, file):
@@ -6,6 +10,8 @@ class XYZ():
         self.atoms = None
         self.file = file
         self.num_atoms = None
+        self.bond_orders = None
+        self.connectivities = None
 
     def reader(self):
         num_atoms = 0
@@ -23,4 +29,45 @@ class XYZ():
         self.coords = coords
         self.atoms = atoms
         self.num_atoms = num_atoms
+
+    def bond_matrix(self):
+        dist_matrix = distance_matrix(self.coords, self.coords)
+        N = self.coords.shape[0]
+        bonded_matrix = np.zeros(dist_matrix.shape)
+        for i, j in np.ndindex(bonded_matrix.shape):
+            distance = dist_matrix[i][j]
+            bond_i = bonding_radius(self.atoms[i])
+            bond_j = bonding_radius(self.atoms[j])
+            bond_max = bond_i + bond_j
+            if distance <= bond_max and distance != 0:
+                bonded_matrix[i][j] = 1
+        return bonded_matrix
+
+    def bond_order_connectivities(self):
+        bond_order = []
+        bonding_matrix = self.bond_matrix()
+        for atom in bonding_matrix:
+            bond_order.append(int(sum(atom)))
+        connectivities = [list(np.where(row==1)[0]) for row in bonding_matrix]
+        self.bond_orders = np.array(bond_order)
+        self.connectivities = connectivities
+
+    def fragment(self):
+        bonding_matrix = self.bond_matrix()
+        G = nx.Graph()
+        G.add_nodes_from(range(self.num_atoms))
+
+        for i in range(self.num_atoms):
+            for j in range(self.num_atoms):
+                if bonding_matrix[i, j] == 1:
+                    G.add_edge(i, j)
+
+        fragments = list(nx.connected_components(G))
+        fragmented_complex = []
+        for frags in fragments:
+            fragment_n = []
+            for i in frags:
+                fragment_n.append([self.atoms[i], self.coords[i][0], self.coords[i][1], self.coords[i][2]])
+            fragmented_complex.append(fragment_n)
+        return fragmented_complex
 
