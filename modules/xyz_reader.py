@@ -53,7 +53,7 @@ class XYZ():
         self.bond_orders = np.array(bond_order)
         self.connectivities = connectivities
 
-    def ff_atom_types(self, pd_df):
+    def ff_atom_types_basic(self, pd_df):
         ff_atom_types = []
         df = pd.read_csv(pd_df)
         for i, atom in enumerate(self.atoms):
@@ -64,8 +64,7 @@ class XYZ():
 
     def tinker_input_generator(self, df):
         N = np.arange(self.num_atoms)
-        self.ff_atom_types(df)
-        ff_atom_types = self.ff_atom_types(df)
+        ff_atom_types = self.ff_atom_types_basic(df)
         print(self.num_atoms)
         for atom_index in N:
             entry = f'{atom_index+1:<4} {self.atoms[atom_index]:<8} {self.coords[atom_index][0]:>12.8f} {self.coords[atom_index][1]:>12.8f} {self.coords[atom_index][2]:>12.8f}\t{ff_atom_types[atom_index]:<6}\t{" ".join(map(str, 1+np.array(self.connectivities[atom_index])))}'
