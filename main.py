@@ -1,7 +1,7 @@
 from modules.xyz_reader import *
 from modules.bond_distances import *
 
-file = 'tests/water_cluster.xyz'
+file = 'tests/methane_dimer.xyz'
 
 benzene = XYZ(file)
 benzene.reader()
@@ -14,13 +14,4 @@ for frag in fragmented_complex:
 """
 benzene.bond_order_connectivities()
 
-coords = benzene.coords
-atoms = benzene.atoms
-atom_num = benzene.num_atoms
-bond_orders = benzene.bond_orders
-atom_connectivities = benzene.connectivities
-
-print(bond_orders)
-print(atom_connectivities)
-print(benzene.bond_matrix())
-
+benzene.tinker_input_generator('modules/basic_ff_atom_types.txt')
