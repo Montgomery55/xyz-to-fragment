@@ -70,7 +70,39 @@ class XYZ():
             entry = f'{atom_index+1:<4} {self.atoms[atom_index]:<8} {self.coords[atom_index][0]:>12.8f} {self.coords[atom_index][1]:>12.8f} {self.coords[atom_index][2]:>12.8f}\t{ff_atom_types[atom_index]:<6}\t{" ".join(map(str, 1+np.array(self.connectivities[atom_index])))}'
             print(entry)
 
+    def ghost_atom_generator(self):
+        bonding_matrix = self.bond_matrix()
+        G = nx.Graph()
+        G.add_nodes_from(range(self.num_atoms))
 
+        for i in range(self.num_atoms):
+            for j in range(self.num_atoms):
+                if bonding_matrix[i, j] == 1:
+                    G.add_edge(i, j)
+
+        fragments = list(nx.connected_components(G))
+        fragmented_complex = []
+        for frags in fragments:
+            fragment_n = []
+            for i in frags:
+                fragment_n.append([self.atoms[i], self.coords[i][0], self.coords[i][1], self.coords[i][2]])
+            fragmented_complex.append(fragment_n)
+        fragmented_complex = np.array([np.array(x) for x in fragmented_complex], dtype=object)
+        num_frags = np.arange(fragmented_complex.shape[0])
+
+        print('-- dimer')
+        for i in num_frags:
+            for atom_coord in fragmented_complex[i]:
+                print(f'{atom_coord[0]} {atom_coord[1]} {atom_coord[2]} {atom_coord[3]}')
+        for i in num_frags:
+            print(f'-- monomer {i+1}')
+            for atom_coord in fragmented_complex[i]:
+                print(f'{atom_coord[0]} {atom_coord[1]} {atom_coord[2]} {atom_coord[3]}')
+            for j in num_frags:
+                if j != i:
+                    for atom_coord in fragmented_complex[j]:
+                        print(f'@{atom_coord[0]} {atom_coord[1]} {atom_coord[2]} {atom_coord[3]}')
+            
     def fragment(self):
         bonding_matrix = self.bond_matrix()
         G = nx.Graph()
