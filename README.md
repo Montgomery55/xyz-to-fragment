@@ -22,9 +22,11 @@ The `modules.xyz_reader.XYZ` class provides three main methods:
 
 These three core methods are dependent on two other methods of the `XYZ` class, `reader()` and `bond_order_connectivities()`, which must be run before the three other methods given.
 
+The `main.py` provides examples on how to run these methods.
+
 ## Installation
 
-talk about needed python libraries and why required files are here
+Run `pip install -r requirements.txt` in your python environment to install dependencies.
 
 ## Tests
 
