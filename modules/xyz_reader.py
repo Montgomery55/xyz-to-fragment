@@ -5,6 +5,7 @@ import pandas as pd
 from itertools import permutations
 from modules.bond_distances import *
 from .vdw_radii import *
+import time
 
 class XYZ():
     def __init__(self, file):
@@ -123,48 +124,59 @@ class XYZ():
             fragmented_complex.append(fragment_n)
         return fragmented_complex
 
-    def vdw_surface_area(self, grid_spacing=0.1, complex=False):
-        if complex == False:
-            fragments = self.fragment()
-        elif complex == True:
-            fragments = self.fragment()
-            for i, frag in enumerate(fragments):
-                coords = np.array([atom[1:] for atom in frag])
-                atoms = np.array([atom[0] for atom in frag])
-                radii = np.array([vdw_radii[atom[0]] for atom in frag])
-                min_corner = coords.min(axis=0) - radii.max()
-                max_corner = coords.max(axis=0) + radii.max()
+    def vdw_surface_area(self, grid_spacing=0.1):
+        fragments = self.fragment()
+        surface_areas = {}
+        for frag_num, frag in enumerate(fragments):
+            coords = np.array([atom[1:] for atom in frag])
+            atoms = np.array([atom[0] for atom in frag])
+            radii = np.array([vdw_radii[atom[0]] for atom in frag])
+            min_corner = coords.min(axis=0) - radii.max()
+            max_corner = coords.max(axis=0) + radii.max()
 
-                x = np.arange(min_corner[0], max_corner[0]+grid_spacing, grid_spacing)
-                y = np.arange(min_corner[1], max_corner[1]+grid_spacing, grid_spacing)
-                z = np.arange(min_corner[2], max_corner[2]+grid_spacing, grid_spacing)
-                nx, ny, nz = len(x), len(y), len(z)
+            x = np.arange(min_corner[0], max_corner[0]+grid_spacing, grid_spacing)
+            y = np.arange(min_corner[1], max_corner[1]+grid_spacing, grid_spacing)
+            z = np.arange(min_corner[2], max_corner[2]+grid_spacing, grid_spacing)
+            nx, ny, nz = len(x), len(y), len(z)
 
-                occupancy = np.zeros((nx, ny, nz))
-                xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
-                grid_points = np.stack([xv, yv, zv], axis=-1).reshape(-1, 3)
+            occupancy = np.zeros((nx, ny, nz))
+            occupancy = occupancy.astype(bool)
+            xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
+            grid_points = np.stack([xv, yv, zv], axis=-1).reshape(-1, 3)
 
-                for atom, coord, radius in zip(atoms, coords, radii):
-                    d2 = np.sum((grid_points - coord)**2, axis=1)
-                    inside = d2 <= radius**2
-                    indices = np.argwhere(inside).flatten()
-                    for idx in indices:
-                        i, j, k = np.unravel_index(idx, (nx, ny, nz))
-                        occupancy[i, j, k] = True
+            for atom, coord, radius in zip(atoms, coords, radii):
+                d2 = np.sum((grid_points - coord)**2, axis=1)
+                inside = d2 <= radius**2
+                indices = np.argwhere(inside).flatten()
+                for idx in indices:
+                    i, j, k = np.unravel_index(idx, (nx, ny, nz))
+                    occupancy[i, j, k] = True
 
-                surface_area = 0.0
-                face_area = grid_spacing**2
-                directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]
+            surface_area = 0.0
+            face_area = grid_spacing**2
+            directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]
 
-                for i in range(1, nx-1):
-                    for j in range(1, ny-1):
-                        for k in range(1, nz-1):
-                            if occupancy[i,j,k]:
-                                for dx, dy, dz in directions:
-                                    ni, nj, nk = i+dx, j+dy, k+dz
-                                    if not occupancy[ni, nj, nk]:
-                                        surface_area += face_area
-                print(f'Surface Area: {surface_area:.2f} \u212b\u00b2')
+            for dx, dy, dz in directions:
+                shifted = np.roll(occupancy, shift=(dx, dy, dz), axis=(0, 1, 2))
+                mask = occupancy & (~shifted)
+
+                if dx == -1:
+                    mask[0,:,:] = False
+                elif dx == 1:
+                    mask[-1,:,:] = False
+                if dy == -1:
+                    mask[:,0,:] = False
+                elif dy == 1:
+                    mask[:,-1,:] = False
+                if dz == -1:
+                    mask[:,:,0] = False
+                elif dz == 1:
+                    mask[:,:,-1] = False
+
+                surface_area += np.sum(mask) * face_area
+            #print(f'Surface Area: {surface_area:.2f} \u212b\u00b2')
+            surface_areas[f'Frag {frag_num}'] = np.round(surface_area, 2)
+        return surface_areas
 
 
 
