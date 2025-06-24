@@ -127,6 +127,7 @@ class XYZ():
     def vdw_surface_area(self, grid_spacing=0.1):
         fragments = self.fragment()
         surface_areas = {}
+        surface_points = {}
         for frag_num, frag in enumerate(fragments):
             coords = np.array([atom[1:] for atom in frag])
             atoms = np.array([atom[0] for atom in frag])
@@ -157,6 +158,7 @@ class XYZ():
             surface_area = 0.0
             face_area = grid_spacing**2
             directions = [(1,0,0), (-1,0,0), (0,1,0), (0,-1,0), (0,0,1), (0,0,-1)]
+            surf_coords = []
 
             for dx, dy, dz in directions:
                 shifted = np.roll(occupancy, shift=(dx, dy, dz), axis=(0, 1, 2))
@@ -176,9 +178,16 @@ class XYZ():
                     mask[:,:,-1] = False
 
                 surface_area += np.sum(mask) * face_area
-            #print(f'Surface Area: {surface_area:.2f} \u212b\u00b2')
+                surf_indices = np.argwhere(mask)
+                surf_xyz = np.stack([x[surf_indices[:,0]],
+                                        y[surf_indices[:,1]],
+                                        z[surf_indices[:,2]]], axis=-1)
+                surf_coords.append(surf_xyz)
+
+            surface_coords = np.vstack(surf_coords)
             surface_areas[f'Frag {frag_num}'] = np.round(surface_area, 2)
-        return surface_areas
+            surface_points[f'Frag {frag_num}'] = surface_coords
+        return surface_areas, surface_points
 
 
 
