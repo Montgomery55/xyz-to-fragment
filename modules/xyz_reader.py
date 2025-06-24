@@ -5,6 +5,7 @@ import pandas as pd
 from itertools import permutations
 from modules.bond_distances import *
 from .vdw_radii import *
+from .neg_IE_IP import *
 import time
 
 class XYZ():
@@ -191,3 +192,41 @@ class XYZ():
             surface_areas[f'Frag {frag_num}'] = np.round(surface_area, 2)
             surface_points[f'Frag {frag_num}'] = surface_coords
         return surface_areas, surface_points
+
+    def gasteiger_charge(self, iterations=1, k=0.1):
+        fragments = self.fragment()
+        if len(fragments) == 1:
+            N = np.arange(self.num_atoms)
+            bonds = []
+            for atom_index in N:
+                entry = np.array(self.connectivities[atom_index])
+                for val in entry:
+                    bonds.append([atom_index, val])
+            bonds = {tuple(sorted(edge)) for edge in bonds}
+            bonds = np.array([list(edge) for edge in bonds])
+
+            coords = np.array([atom[1:] for atom in fragments[0]])
+            atoms = np.array([atom[0] for atom in fragments[0]])
+            electron_negativities = np.array([electronegativities[atom] for atom in atoms])
+            IP = np.array([ionization_energies[atom] for atom in atoms])
+            EA = np.array([electron_affinities[atom] for atom in atoms])
+            hardness = (IP - EA) / 2
+
+            q = np.zeros(len(atoms))
+
+            for it in range(iterations):
+                dq = np.zeros_like(q)
+                for i, j in bonds:
+                    chi_i = electron_negativities[i] - q[i]*hardness[i]
+                    chi_j = electron_negativities[j] - q[i]*hardness[j]
+                    delta_q = k * (chi_j - chi_i) / 2
+                    dq[i] += delta_q
+                    dq[j] -= delta_q
+
+                q += dq
+
+            return q / np.linalg.norm(q)
+
+        else:
+            print("can't do multiple fragments")
+
