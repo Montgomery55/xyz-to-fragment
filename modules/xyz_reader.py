@@ -124,12 +124,12 @@ class XYZ():
             fragmented_complex.append(fragment_n)
         return fragmented_complex
 
-    def vdw_surface_area(self, grid_spacing=0.1, solvent_probe=0):
+    def vdw_surface_area(self, grid_spacing=0.1, solvent_probe=0, vdw_scale=1):
         fragments = self.fragment()
         surface_areas = {}
         surface_points = {}
         for key in vdw_radii:
-            vdw_radii[key] = vdw_radii[key]+solvent_probe
+            vdw_radii[key] = vdw_scale*vdw_radii[key]+solvent_probe
 
         for frag_num, frag in enumerate(fragments):
             coords = np.array([atom[1:] for atom in frag])
