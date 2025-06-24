@@ -191,10 +191,3 @@ class XYZ():
             surface_areas[f'Frag {frag_num}'] = np.round(surface_area, 2)
             surface_points[f'Frag {frag_num}'] = surface_coords
         return surface_areas, surface_points
-
-
-
-
-
-
-
