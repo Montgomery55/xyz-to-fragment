@@ -144,13 +144,15 @@ class XYZ():
             xv, yv, zv = np.meshgrid(x, y, z, indexing='ij')
             grid_points = np.stack([xv, yv, zv], axis=-1).reshape(-1, 3)
 
-            for atom, coord, radius in zip(atoms, coords, radii):
+            grid_shape = (nx, ny, nz)
+            grid_indices_3d = np.array(np.unravel_index(np.arange(grid_points.shape[0]), grid_shape)).T  # shape (n_points, 3)
+
+            for coord, radius in zip(coords, radii):
                 d2 = np.sum((grid_points - coord)**2, axis=1)
                 inside = d2 <= radius**2
-                indices = np.argwhere(inside).flatten()
-                for idx in indices:
-                    i, j, k = np.unravel_index(idx, (nx, ny, nz))
-                    occupancy[i, j, k] = True
+                occupancy_indices = grid_indices_3d[inside]
+
+                occupancy[occupancy_indices[:, 0], occupancy_indices[:, 1], occupancy_indices[:, 2]] = True
 
             surface_area = 0.0
             face_area = grid_spacing**2
