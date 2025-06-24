@@ -15,12 +15,13 @@ atom2 x2 y2 z2
 atomN xN yN zN
 ```
 
-The `modules.xyz_reader.XYZ` class provides three main methods:
+The `modules.xyz_reader.XYZ` class provides several main methods:
 `tinker_input_generator('file')`: produces a tinker input file from a given `.xyz` file.
 `fragment()`: produces a fragment (noncovalent) of a given `.xyz` file.
 `ghost_atom_generator`: produces an `.xyz` file where ghost atoms are given as '@X'.
+`vdw_surface_area(grid_spacing=n)`: produces both the van der Waal surface area and the surface coordinates.
 
-These three core methods are dependent on two other methods of the `XYZ` class, `reader()` and `bond_order_connectivities()`, which must be run before the three other methods given.
+These core methods are dependent on two other methods of the `XYZ` class, `reader()` and `bond_order_connectivities()`, which must be run before the three other methods given.
 
 The `main.py` provides examples on how to run these methods.
 
