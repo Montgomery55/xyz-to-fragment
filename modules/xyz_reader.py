@@ -229,4 +229,5 @@ class XYZ():
 
         else:
             print("can't do multiple fragments")
+            return None
 
