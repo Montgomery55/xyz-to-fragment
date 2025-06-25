@@ -231,3 +231,15 @@ class XYZ():
             print("can't do multiple fragments")
             return None
 
+    def ESP_map(self, iterations=1, k=0.1, grid_spacing=0.2):
+        charges = self.gasteiger_charge(iterations=iterations, k=k)
+        atom_positions = self.coords
+        _, surface_points = self.vdw_surface_area(grid_spacing=grid_spacing)
+        potentials = np.zeros(len(surface_points['Frag 0']))
+
+        for i, r in enumerate(surface_points['Frag 0']):
+            distances = np.linalg.norm(r - atom_positions, axis=1)
+            potentials[i] = np.sum(charges / distances)
+
+        return potentials
+
