@@ -28,4 +28,16 @@ print()
 surface_area, surface_points = sample.vdw_surface_area(grid_spacing=0.2)
 print(f'van der Waal surface area of water (fragment 1): {np.round(surface_area["Frag 0"], 2)} \u212b\u00b2')
 print(f'Surface coordinates of Fragment 1 {surface_points["Frag 0"]}')
+print()
 
+#obtain electrostatic potential of a single fragment (single molecule)
+file = 'tests/water.xyz'
+sample = XYZ(file)
+sample.reader()
+sample.bond_order_connectivities()
+
+ESP = sample.ESP_map()
+surface_area, surface_points = sample.vdw_surface_area()
+print(ESP)
+print(f'van der Waal surface area: {surface_area["Frag 0"]} \u212b\u00b2')
+print(f'Surface points:\n{surface_points}')
