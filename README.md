@@ -26,7 +26,7 @@ The `modules.xyz_reader.XYZ` class provides several main methods:
 The density of the points is controled by `grid_spacing` (a value of 0.2 is sufficient in most cases, but the accuracy can be increased by decreasing the value of `grid_spaxing`, but if the system is large, 0.5 will work).
 The size of the surface is controlled by `solvent_probe` which adds a value to the van der Waal radii and/pr `vdw_scale` which scales the van der Waal radii by a scalar value (between 0 and 1).
 
-`ESP_map()`: produces Gasteiger charges (obtained from the electronegativity and chemical hardness (calculated via IP and EA values) at a given surface (such as that obtained from `vdw_surfave_area`).
+`ESP_map()`: produces normalized Gasteiger charges (obtained from the electronegativity and chemical hardness (calculated via IP and EA values) at a given surface (such as that obtained from `vdw_surfave_area`).
 
 These core methods are dependent on two other methods of the `XYZ` class, `reader()` and `bond_order_connectivities()`, which must be run before the three other methods given.
 
