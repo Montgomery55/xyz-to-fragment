@@ -231,6 +231,23 @@ class XYZ():
             print("can't do multiple fragments")
             return None
 
+    def multipole(self, iterations=1, k=0.1):
+        charges = self.gasteiger_charge(iterations=iterations, k=k)
+        charge = np.sum(charges)
+        dipole = np.zeros(3)
+        quadrupole = np.zeros((3,3))
+        octopole = np.zeros((3,3,3))
+        coc = np.sum(self.coords, axis=1)/self.coords.shape[0]
+
+        if charge == 0:
+            for i in range(len(charges)):
+                dipole += charges[i] * np.array(self.coords[i])
+
+        dipole_total = np.linalg.norm(dipole)
+
+
+        return charge, (dipole, dipole_total), quadrupole, octopole
+
     def ESP_map(self, iterations=1, k=0.1, grid_spacing=0.2):
         charges = self.gasteiger_charge(iterations=iterations, k=k)
         atom_positions = self.coords
