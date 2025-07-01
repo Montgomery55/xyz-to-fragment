@@ -231,6 +231,7 @@ class XYZ():
             print("can't do multiple fragments")
             return None
 
+    """
     def multipole(self, iterations=1, k=0.1):
         charges = self.gasteiger_charge(iterations=iterations, k=k)
         charge = np.sum(charges)
@@ -247,6 +248,7 @@ class XYZ():
 
 
         return charge, (dipole, dipole_total), quadrupole, octopole
+    """
 
     def ESP_map(self, iterations=1, k=0.1, grid_spacing=0.2):
         charges = self.gasteiger_charge(iterations=iterations, k=k)
